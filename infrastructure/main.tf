@@ -1,6 +1,10 @@
+resource "tls_private_key" "ssh" {
+  algorithm = "ED25519"
+}
+
 resource "hcloud_ssh_key" "me" {
   name = "nobbs"
-  public_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDCBMdl3Z8zgAUVF5AeY8hz3vcnkrJ+dPh3yYIKGm2ZO"
+  public_key = tls_private_key.ssh.public_key_openssh
 }
 
 resource "hcloud_server" "node" {
@@ -41,9 +45,8 @@ output "rke_cluster_yml" {
         address: node.ipv4_address
         role: ["controlplane", "worker", "etcd"]
         user: "root"
+        ssh_key: tls_private_key.ssh.private_key_pem
       }
     ]
-
-    ssh_agent_auth: true
   })
 }
