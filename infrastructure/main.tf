@@ -14,3 +14,12 @@ resource "hcloud_server" "node" {
 
   ssh_keys  = [hcloud_ssh_key.me.id]
 }
+
+output "nodes" {
+  value = [
+    for node in hcloud_server.node : {
+      name = node.name
+      ipv4 = node.ipv4_address
+    }
+  ]
+}
