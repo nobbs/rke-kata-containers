@@ -39,6 +39,8 @@ resource "hcloud_server" "node" {
 }
 
 output "rke_cluster_yml" {
+  sensitive = true
+
   value = yamlencode({
     nodes: [
       for node in hcloud_server.node : {
