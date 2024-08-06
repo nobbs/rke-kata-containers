@@ -1,12 +1,12 @@
 terraform {
   required_providers {
     hcloud = {
-      source = "hetznercloud/hcloud"
+      source  = "hetznercloud/hcloud"
       version = "1.48.0"
     }
 
     tls = {
-      source = "hashicorp/tls"
+      source  = "hashicorp/tls"
       version = "4.0.5"
     }
   }
@@ -14,7 +14,7 @@ terraform {
   cloud {
     organization = "rke-kata-containers"
     workspaces {
-        name = "rke-kata-containers"
+      name = "rke-kata-containers"
     }
   }
 }
