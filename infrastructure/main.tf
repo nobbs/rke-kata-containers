@@ -8,18 +8,42 @@ resource "hcloud_server" "node" {
 
   name        = "node-${count.index}"
   server_type = "cx42"
-  image       = "rocky-8"
+  image       = "ubuntu-22.04"
 
   location = "nbg1"
 
   ssh_keys  = [hcloud_ssh_key.me.id]
+  user_data = <<-EOF
+    #cloud-config
+    package_update: true
+    package_upgrade: true
+
+    packages:
+      - curl
+      - apt-transport-https
+      - ca-certificates
+      - wget
+
+    groups:
+      - name: docker
+        gid: "999"
+
+    runcmd:
+      - curl -fsSL https://get.docker.com | sh
+      - reboot
+    EOF
 }
 
-output "nodes" {
-  value = [
-    for node in hcloud_server.node : {
-      name = node.name
-      ipv4 = node.ipv4_address
-    }
-  ]
+output "rke_cluster_yml" {
+  value = yamlencode({
+    nodes: [
+      for node in hcloud_server.node : {
+        address: node.ipv4_address
+        role: ["controlplane", "worker", "etcd"]
+        user: "root"
+      }
+    ]
+
+    ssh_agent_auth: true
+  })
 }
